@@ -36,20 +36,26 @@
 #define kCFCoreFoundationVersionNumber_10_7 635.0
 #endif
 
-#if TARGET_OS_IPHONE == 0
-#define MR_MINIMUM_PRIVATE_QUEUE_CF_VERSION kCFCoreFoundationVersionNumber_10_7
-#else
-#define MR_MINIMUM_PRIVATE_QUEUE_CF_VERSION kCFCoreFoundationVersionNumber_iPhoneOS_5_0
+#ifndef MR_IS_PRIVATE_QUEUES_ENABLED
+
+    #if TARGET_OS_IPHONE == 0
+    #define MR_MINIMUM_PRIVATE_QUEUE_CF_VERSION kCFCoreFoundationVersionNumber_10_7
+    #else
+    #define MR_MINIMUM_PRIVATE_QUEUE_CF_VERSION kCFCoreFoundationVersionNumber_iPhoneOS_5_0
+    #endif
+
+    #define MR_IS_PRIVATE_QUEUES_ENABLED (kCFCoreFoundationVersionNumber >= MR_MINIMUM_PRIVATE_QUEUE_CF_VERSION)
+
 #endif
 
 #define PRIVATE_QUEUES_ENABLED(...) \
-    if (kCFCoreFoundationVersionNumber >= MR_MINIMUM_PRIVATE_QUEUE_CF_VERSION) \
+    if (MR_IS_PRIVATE_QUEUES_ENABLED) \
     { \
         __VA_ARGS__ \
     }
 
 #define THREAD_ISOLATION_ENABLED(...) \
-    if (kCFCoreFoundationVersionNumber < MR_MINIMUM_PRIVATE_QUEUE_CF_VERSION) \
+    if (!MR_IS_PRIVATE_QUEUES_ENABLED) \
     { \
         __VA_ARGS__ \
     }
