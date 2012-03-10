@@ -74,11 +74,12 @@ static NSUInteger defaultBatchSize = kMagicalRecordDefaultBatchSize;
 + (NSString *) MR_entityName
 {
     static NSMutableDictionary *entityNameMap = nil;
+    static dispatch_once_t onceToken;
     
-    if(entityNameMap == nil)
-    {
-     
-        NSArray *entities = [[NSManagedObjectModel defaultManagedObjectModel] entities];
+    dispatch_once(&onceToken, ^{
+        
+//        NSArray *entities = [[NSManagedObjectModel defaultManagedObjectModel] entities];
+        NSArray *entities = [[[[NSManagedObjectContext defaultContext] persistentStoreCoordinator] managedObjectModel] entitiesForConfiguration:@"PF_DEFAULT_CONFIGURATION_NAME"];
         
         entityNameMap = [NSMutableDictionary dictionaryWithCapacity:[entities count]];
         
@@ -87,7 +88,7 @@ static NSUInteger defaultBatchSize = kMagicalRecordDefaultBatchSize;
             [entityNameMap setObject:[desc name] forKey:[desc managedObjectClassName]];
         }        
         [entityNameMap retain];
-    }
+    });
     
     return [entityNameMap objectForKey:NSStringFromClass([self class])];
 }
