@@ -1,4 +1,4 @@
-//
+est//
 //  NSManagedObjectContext+MagicalRecord.m
 //
 //  Created by Saul Mora on 11/23/09.
@@ -168,7 +168,9 @@ static void const * kMagicalRecordNotifiesMainContextAssociatedValueKey = @"kMag
 	}
 	@catch (NSException *exception)
 	{
-		MRLog(@"Problem saving: %@", (id)[exception userInfo] ?: (id)[exception reason]);	
+        
+        NSLog(@"[ERROR] Problem saving: %@", (id)[exception userInfo] ?: (id)[exception reason]);	
+        
 	}
 	@finally 
     {
