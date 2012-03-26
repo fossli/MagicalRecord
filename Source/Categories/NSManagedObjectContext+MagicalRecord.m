@@ -267,7 +267,22 @@ static void const * kMagicalRecordNotifiesMainContextAssociatedValueKey = @"kMag
 
 + (NSManagedObjectContext *) MR_contextForCurrentThread;
 {
-	if ([NSThread isMainThread])
+    
+#if TEST
+    
+    if ([NSThread isMainThread])
+	{
+		return [self MR_defaultContext];
+	}
+	else
+	{
+        NSManagedObjectContext *context = [self MR_contextThatNotifiesDefaultContextOnMainThread];
+		return context;
+	}
+    
+#else 
+    
+    if ([NSThread isMainThread])
 	{
 		return [self MR_defaultContext];
 	}
@@ -282,6 +297,10 @@ static void const * kMagicalRecordNotifiesMainContextAssociatedValueKey = @"kMag
 		}
 		return threadContext;
 	}
+    
+#endif
+    
+
 }
 
 + (NSManagedObjectContext *) MR_contextWithStoreCoordinator:(NSPersistentStoreCoordinator *)coordinator;
