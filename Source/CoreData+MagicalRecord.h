@@ -22,6 +22,10 @@
     #define MRLog(...) ((void)0)
 #endif
 
+#ifndef MR_IS_ICLOUD_DISABLED
+#define MR_IS_ICLOUD_DISABLED 0
+#endif
+
 #import <CoreData/CoreData.h>
 
 #ifndef MR_USE_ARC

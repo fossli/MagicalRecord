@@ -191,8 +191,12 @@ void replaceSelectorForTargetWithSourceImpAndSwizzle(Class originalClass, SEL or
 
 + (BOOL) isICloudEnabled;
 {
+#if MR_IS_ICLOUD_DISABLED
+    return NO;
+#else
     NSURL *cloudURL = [NSPersistentStore MR_cloudURLForUbiqutiousContainer:nil];
     return cloudURL != nil;
+#endif
 }
 
 + (void) setupCoreDataStackWithiCloudContainer:(NSString *)icloudBucket localStoreNamed:(NSString *)localStore;
