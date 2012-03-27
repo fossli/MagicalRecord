@@ -13,6 +13,11 @@ static NSString const * kMagicalRecordManagedObjectContextKey = @"MagicalRecord_
 static void const * kMagicalRecordNotifiesMainContextAssociatedValueKey = @"kMagicalRecordNotifiesMainContextOnSave";
        NSString * const kMagicalRecordDidMergeChangesFromiCloudNotification = @"kMagicalRecordDidMergeChangesFromiCloudNotification";
 
+#if TEST
+static NSMutableDictionary *contextMap;
+#endif
+
+
 @interface NSManagedObjectContext (MagicalRecordPrivate)
 
 - (void) MR_mergeChangesFromNotification:(NSNotification *)notification;
@@ -276,7 +281,21 @@ static void const * kMagicalRecordNotifiesMainContextAssociatedValueKey = @"kMag
 	}
 	else
 	{
-        NSManagedObjectContext *context = [self MR_contextThatNotifiesDefaultContextOnMainThread];
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{
+            contextMap = [[NSMutableDictionary alloc] init];
+        });
+        
+        if([[NSThread currentThread] name] == nil || [[[NSThread currentThread] name] isEqualToString:@""]){
+            [[NSThread currentThread] setName:[NSString stringWithFormat:@"%i", [[NSDate date] timeIntervalSince1970]]];
+        }
+        
+        NSManagedObjectContext *context = [contextMap objectForKey:[[NSThread currentThread] name]];
+        
+        if(context == nil){
+            context = [self MR_contextThatNotifiesDefaultContextOnMainThread];
+            [contextMap setObject:context forKey:[[NSThread currentThread] name]];
+        }
 		return context;
 	}
     
@@ -302,6 +321,15 @@ static void const * kMagicalRecordNotifiesMainContextAssociatedValueKey = @"kMag
     
 
 }
+
+#if TEST
++ (void)resetContextMap{
+    
+    [contextMap release];
+    contextMap = [[NSMutableDictionary alloc] init];
+
+}
+#endif
 
 + (NSManagedObjectContext *) MR_contextWithStoreCoordinator:(NSPersistentStoreCoordinator *)coordinator;
 {
