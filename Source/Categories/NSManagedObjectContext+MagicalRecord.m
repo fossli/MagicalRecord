@@ -325,6 +325,10 @@ static NSMutableDictionary *contextMap;
 #if TEST
 + (void)resetContextMap{
     
+    [contextMap enumerateKeysAndObjectsUsingBlock:^(id key, NSManagedObjectContext *obj, BOOL *stop) {
+        obj.MR_notifiesMainContextOnSave = NO;
+    }];
+    
     [contextMap release];
     contextMap = [[NSMutableDictionary alloc] init];
 
