@@ -89,7 +89,9 @@ void cleanup_save_queue()
 + (void) saveDataInBackgroundWithBlock:(void(^)(NSManagedObjectContext *localContext))block completion:(void(^)(void))callback
 {
     dispatch_async(background_save_queue(), ^{
-        [self saveDataWithBlock:block];
+        [self saveDataWithBlock:block errorHandler:^(NSError *error) {
+            NSLog(@"[ERROR] Problem saving: %@", error);
+        }];
         
         if (callback) 
         {
