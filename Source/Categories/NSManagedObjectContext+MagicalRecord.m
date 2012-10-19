@@ -287,7 +287,7 @@ static NSMutableDictionary *contextMap;
         });
         
         if([[NSThread currentThread] name] == nil || [[[NSThread currentThread] name] isEqualToString:@""]){
-            [[NSThread currentThread] setName:[NSString stringWithFormat:@"%i", [[NSDate date] timeIntervalSince1970]]];
+            [[NSThread currentThread] setName:[NSString stringWithFormat:@"%f", [[NSDate date] timeIntervalSince1970]]];
         }
         
         NSManagedObjectContext *context = [contextMap objectForKey:[[NSThread currentThread] name]];
