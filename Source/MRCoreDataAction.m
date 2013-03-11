@@ -11,8 +11,14 @@
 #import "NSManagedObjectContext+MagicalRecord.h"
 #import <dispatch/dispatch.h>
 
+
+
 dispatch_queue_t background_save_queue(void);
 void cleanup_save_queue(void);
+
+#if TEST
+static NSMutableDictionary *saveRegister;
+#endif
 
 static dispatch_queue_t coredata_background_save_queue;
 
@@ -88,17 +94,40 @@ void cleanup_save_queue()
 
 + (void) saveDataInBackgroundWithBlock:(void(^)(NSManagedObjectContext *localContext))block completion:(void(^)(void))callback
 {
+#if TEST
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        saveRegister = [[NSMutableDictionary alloc] init];
+    });
+    
+    NSTimeInterval timeKey = [NSDate timeIntervalSinceReferenceDate];
+    NSNumber *saveKey = [NSNumber numberWithDouble:timeKey];
+    
+    [saveRegister setObject:@"test" forKey:saveKey];
+    
+#endif
+    
     dispatch_async(background_save_queue(), ^{
         [self saveDataWithBlock:block errorHandler:^(NSError *error) {
             NSLog(@"[ERROR] Problem saving: %@", error);
         }];
         
+#if TEST
+        [saveRegister removeObjectForKey:saveKey];
+#endif
         if (callback) 
         {
             dispatch_async(dispatch_get_main_queue(), callback);
         }
     });
 }
+
+#if TEST
++ (BOOL)isSaveRegisterEmpty
+{
+    return [saveRegister count] == 0;
+}
+#endif
 
 + (void) saveDataInBackgroundWithBlock:(void (^)(NSManagedObjectContext *localContext))block completion:(void (^)(void))callback errorHandler:(void (^)(NSError *))errorHandler
 {

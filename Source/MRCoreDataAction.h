@@ -36,6 +36,10 @@ typedef enum
 
 + (void) lookupWithBlock:(void(^)(NSManagedObjectContext *localContext))block;
 
+#if TEST
++ (BOOL)isSaveRegisterEmpty;
+#endif
+
 #endif
 
 @end
